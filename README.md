@@ -10,3 +10,6 @@
 
 **注：这里显示以北京为始发，若改为其他省市，修改URL至对应的字符即可。**
 
+
+
+![软件运行截图](https://github.com/potterhere/SpecialFlightPrice/blob/master/img/runstatus.jpg)
