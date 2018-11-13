@@ -10,28 +10,23 @@ default_encoding = 'utf-8'
 reload(sys)
 sys.setdefaultencoding(default_encoding)
 
+
 def getdate(startdate, enddate):
-    url = 'https://sjipiao.alitrip.com/search/cheapFlight.htm?startDate=%s&endDate=%s&' \
-         'routes=BJS-&_ksTS=1469412627640_2361&callback=jsonp2362&ruleId=99&flag=1' % (startdate, enddate)
+    # url = 'https://sjipiao.alitrip.com/search/cheapFlight.htm?startDate=%s&endDate=%s&' \
+    #      'routes=BJS-&_ksTS=1469412627640_2361&callback=jsonp2362&ruleId=99&flag=1' % (startdate, enddate)
+    url = 'https://r.fliggy.com/rule/domestic?startDate=%s&' \
+          'endDate=%s&routes=BJS-&' \
+          '_ksTS=1542114152926_1252&callback=jsonp2362&ruleId=99&flag=1' % (startdate, enddate)
     price_html = urllib.urlopen(url).read().strip()
 
-    pattern = r'jsonp2362\(\s+(.+?)\)'
+    pattern = r'jsonp2362\((.+)\)'
     re_rule = re.compile(pattern)
-
     json_data = re.findall(pattern, price_html)[0]
+    # print(json_data)
+    
     price_json = json.loads(json_data)
 
     flights = price_json['data']['flights']  # flights Info
-
-    '''
-    count = 0
-    for f in flights:
-        # for detail in f:
-        # print '%s: %s' % (detail, f[detail])
-        count += 1
-        print str(count) + '. From:%s,\tTo:%s,\tDate:%s,\tPrice:%s %s,\tsoldOut:%s,\tdisCount:%s' % \
-              (f['depName'], f['arrName'], f['depDate'], f['price'],f['priceDesc'], f['soldOut'], f['discount'])
-    '''
     return flights
 
 
@@ -49,8 +44,8 @@ def get_Target(cityname):
 def dig(tree, cityname):
     findedname = {}
     key = tree.attrib['name']
-    value = []
 
+    value = []
     for elem in tree:
         if cityname in elem.attrib['name']:
             value.append(elem.attrib['name'])
@@ -93,16 +88,11 @@ def set_target(name):
 def printTargetInfo(sorted_flights, targetName):
     print
     print '*****************targetInfo*****************'
-    if type(targetName) == str:
-        for province in sorted_flights:
-            if targetName == province:
+    currentName = set(targetName)
+    for province in sorted_flights:
+        for targetProvince in currentName:
+            if targetProvince == province:
                 print_trip(sorted_flights[province], province)
-    else:
-        currentName = set(targetName)
-        for province in sorted_flights:
-            for targetProvince in currentName:
-                if targetProvince == province:
-                    print_trip(sorted_flights[province], province)
 
 
 # 输出所有航班信息
@@ -124,7 +114,7 @@ def print_trip(flight, province):
 
 def task_query_flight():
     delay = int(raw_input('Enter the Day after: '))
-    target = ['武汉','杭州']
+    target = ['南京']
     today = datetime.date.today()
     enddate = today + datetime.timedelta(delay)
     endstr = str(enddate)
